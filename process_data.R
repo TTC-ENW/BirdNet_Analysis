@@ -19,9 +19,7 @@ formatted.results <- birdnet_gather(
   formatted = TRUE
 )
 
-
 # Create Site ID and date/time from the filename.
-
 
 formatted.results <-
   formatted.results |>
@@ -30,13 +28,45 @@ formatted.results <-
     "_",
     names = c("site_id", "date", "time"),
     cols_remove = FALSE,
-    too_many = "drop")
+    too_many = "drop") |>
+  mutate(time = str_sub(time, 1, 6),
+         time = as_hms(parse_date_time(time, "HMS")),
+         date = ymd(date)
+         )
 
-formatted.results$time <- str_sub(formatted.results$time, 1, 6)
-formatted.results$date <- ymd(formatted.results$date)
-formatted.results$time <- as_hms(parse_date_time(formatted.results$time, "HMS"))
+## Summarize Data
 
-# Summarize Data
+# Species list by site
+
+sp_list <- formatted.results |>
+  group_by(site_id, common_name) |>
+  summarise(hits = n()) |>
+  pivot_wider(names_from = "site_id", values_from = "hits") |>
+  arrange(common_name)
+sp_list
+
+
+
+# Total count by date
+
+
+# Prediction confidence by species
+
+formatted.results |>
+  group_by(common_name) |>
+  summarise(conf_mean = mean(confidence)) |>
+  arrange((conf_mean)) |>
+  ggplot(aes(common_name, conf_mean)) +
+  geom_point() +
+  coord_flip() +
+  theme_bw() +
+  scale_x_discrete(limits=rev)
+
+
+
+
+
+# Validate
 
 
 
