@@ -68,7 +68,9 @@ formatted_results |>
   theme_bw()
 
 
-# Prediction confidence by species
+# Prediction score by species
+
+# Note - these scores are not confidences and cannot be compared among species.
 
 formatted.results |>
   # group_by(common_name) |>
