@@ -1,11 +1,20 @@
 ### BirdNET Analysis and NSNSDAcoustics Tools ###
 
+# Some code to format and gather BirdNet outputs.
+# The BirdNet output format needs to be "R" for any of this to work.
+# See the NSNSDAcoustics Github help page.
 
+
+# Load libraries
 library(NSNSDAcoustics)
 library(tidyverse)
 library(hms)
 
+
 # Directory for birdnet result files. All in one folder.
+# Change to path to point to your folder.
+
+
 dir_birdnet_out <-
   "C:/Users/jeff.matheson/audio_files/waterbirds"
 
@@ -14,16 +23,18 @@ birdnet_format(results.directory = dir_birdnet_out,
                timezone = 'Canada/Pacific')
 
 # Gather formatted results in one data frame
-formatted.results <- birdnet_gather(
+formatted_results <- birdnet_gather(
   results.directory = dir_birdnet_out,
-  formatted = TRUE
-)
+  formatted = TRUE)
 
 
 # Create Site ID and date/time from the filename.
+# Note that the code below assumes the filename format is the usual format
+# from Wildlife Acoustics recordings. If not typical, then you will need to
+# revise the code.
 
-formatted.results <-
-  formatted.results |>
+formatted_results <-
+  formatted_results |>
   separate_wider_delim(
     recordingID,
     "_",
@@ -35,11 +46,12 @@ formatted.results <-
          date = ymd(date)
          )
 
-## Summarize Data
+
+## Summarize data.Just a couple of options.
 
 # Species list by site
 
-sp_list <- formatted.results |>
+sp_list <- formatted_results |>
   group_by(site_id, common_name) |>
   summarise(hits = n()) |>
   pivot_wider(names_from = "site_id", values_from = "hits") |>
@@ -48,7 +60,7 @@ sp_list
 
 
 # Total count by date
-formatted.results |>
+formatted_results |>
   group_by(common_name, date) |>
   summarise(detections = n()) |>
   ggplot(aes(date, detections)) +
